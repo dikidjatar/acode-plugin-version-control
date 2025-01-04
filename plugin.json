@@ -1,0 +1,18 @@
+{
+  "id": "acode.plugin.version.control.git",
+  "name": "Version Control (Git)",
+  "main": "main.js",
+  "version": "1.0.0",
+  "readme": "readme.md",
+  "icon": "icon.png",
+  "files": [
+    "assets/source-control.svg"
+  ],
+  "minVersionCode" : 290,
+  "price": 0,
+  "author": {
+    "name": "Diki Djatar",
+    "email": "dikidjatar@gmail.com",
+    "github": "dikidjatar"
+  }
+}
