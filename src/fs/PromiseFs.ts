@@ -133,7 +133,6 @@ export class PromiseFs implements FileSystem.FsClientPromise {
 
     try {
       stat = await this._stat(path);
-      path = pathUtil.resolve(path, pathUtil.uriToPath(stat.url));
       const result: ArrayBuffer = await fileSystem(pathUtil.pathToUri(path)).readFile();
       data = new Uint8Array(result);
     } catch (err) {
@@ -176,9 +175,10 @@ export class PromiseFs implements FileSystem.FsClientPromise {
     try {
       const stat = await this._stat(path);
       if (stat.exists) {
-        await fileSystem(stat.url).delete();
+        await fileSystem(pathUtil.pathToUri(path)).delete();
       }
-    } catch (err) {
+    } catch (err: any) {
+      err.caller = 'PromiseFs.unlink()'
       console.error(err);
     }
   }
@@ -186,7 +186,6 @@ export class PromiseFs implements FileSystem.FsClientPromise {
   async readdir(path: string, options?: undefined): Promise<string[]> {
     const stat = await this._stat(path);
     if (!stat.isDirectory) throw new ENOTDIR();
-    path = pathUtil.resolve(path, pathUtil.uriToPath(stat.url));
     const dirs = await fileSystem(pathUtil.pathToUri(path)).lsDir();
     const dirnames = dirs.map((obj: any) => obj.name);
     return dirnames;

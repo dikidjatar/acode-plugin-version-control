@@ -72,23 +72,28 @@ function resolvePath(...paths: string[]) {
 }
 
 function uriToPath(uri: string): string {
-  if (decodeURIComponent(uri).includes('/document/primary:')) {
-    uri = decodeURIComponent(uri);
-    const parts = uri.split(':');
-    let path = parts[parts.length - 1];
-    if (!path.startsWith('/')) {
-      path = '/' + path;
-    }
+  if (uri.startsWith('content://com.android.externalstorage.documents/tree/primary')) {
+    let path = uri.split('::primary:')[1];
+    if (!path.startsWith('/')) path = '/' + path;
     return path;
+  } else if (uri.startsWith('content://com.termux.documents/tree')) {
+    let path = uri.split('::')[1]
+      .replace('/data/data/com.termux/files/home', '/$HOME');
+    return path;
+  } else if (uri.startsWith('file:///storage/emulated/0/')) {
+    return uri.replace('file:///storage/emulated/0/', '');
   }
-  const [, second] = uri.split('::');
-  return second.replace('primary:', '/')
+  throw new Error('Unsupported URI');
 }
 
 function pathToUri(path: string): string {
-  if (path.startsWith("/storage/emulated/0/")) {
-    path = path.replace("/storage/emulated/0", "");
+  if (path.startsWith('/$HOME')) {
+    let path2 = path.replace('/$HOME', '');
+    if (!path2.startsWith('/')) path2 = '/' + path2;
+    let termuxUri = 'content://com.termux.documents/tree/%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome::/data/data/com.termux/files/home';
+    return termuxUri + path2;
   }
+
   const segments = path.split("/");
   const storageId = segments[1];
   const relativePath = segments.slice(1).join("/");

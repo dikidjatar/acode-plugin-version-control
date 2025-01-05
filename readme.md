@@ -4,6 +4,8 @@ Welcome to **Acode Version Control (Git) Plugin**! 🚀
 
 This plugin is a lightweight solution for those of you who love coding in Acode and need version control right in the editor. With this plugin, you can manage Git without having to switch between apps. 😎
 
+#### 🆕 Update v1.0.1: Fix SAF URI and Termux Path Issues
+
 ## 🤔 How It Works
 
 This plugin is built with [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git) and leverages Acode's `fsOperation` API for a custom file system integration. Big thanks to the developers of isomorphic-git for making Git operations in JavaScript a reality. 🙌
