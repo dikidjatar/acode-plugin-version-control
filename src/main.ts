@@ -525,9 +525,7 @@ class VersionControl {
     const message = tag.get<HTMLTextAreaElement>('#commit-message');
     const commitBtn = tag.get('.commit-btn');
 
-    if (!message) return;
-
-    if (!message.value) {
+    if (!message?.value) {
       alert('WARNING', 'Message cannot be empty!');
       return;
     }
@@ -566,6 +564,7 @@ class VersionControl {
     } finally {
       message.value = '';
       commitBtn?.classList.remove('disabled');
+      this.setLoadingState(false);
     }
   }
 
