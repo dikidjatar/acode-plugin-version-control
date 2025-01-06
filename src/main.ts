@@ -7,6 +7,7 @@ import { FsClient, FsClientPromise } from './fs/FileSystem';
 import pathUtil from './fs/path';
 import {
   clearError,
+  ENOENT,
   MULTIPLE_FOLDER_SELECTED,
   NO_FOLDER_SELECTED,
   REPO_HAS_INITIALIZED,
@@ -34,6 +35,7 @@ const multiPrompt = acode.require('multiPrompt');
 const appSettings = acode.require('settings');
 const confirm = acode.require('confirm');
 const DialogBox = acode.require('dialogBox');
+const fileBrowser = acode.require('fileBrowser');
 const EditorFileAcode: typeof EditorFile = acode.require('editorFile')
 
 window.Buffer = Buffer;
@@ -120,7 +122,7 @@ class VersionControl {
 
         /** REPOSITORY UNAVAILABLE */
         const $repoUnavailable = RepoUnavailable.create({
-          onInit: ({target}: Event) => {
+          onInit: ({ target }: Event) => {
             const el = (target as HTMLElement);
             el.innerHTML = 'Initialize...'
             this.initializeRepository()
@@ -759,34 +761,60 @@ class VersionControl {
   }
 
   private async gitClone() {
-    const url = await prompt('Repository URL', '', 'url', {
-      required: true,
-      placeholder: 'Enter repositories URL'
-    });
-    if (!url) return;
-
     let loading: any = null;
+
     try {
-      loading = loader.create('Clone', 'Loading...');
-      await git.clone({
-        fs: pfs,
-        http: http,
-        url: url,
-        dir: this.currentDir,
-        corsProxy: CORS_PROXY,
-        onProgress: (progress) => {
-          let msg = progress.phase + ` ${progress.loaded} / ${progress.total}`;
-          loading?.setMessage(msg);
-        },
-        onMessage: (msg) => loading?.setMessage(msg),
-        onAuth: async () => {
-          loading?.hide();
-          let credential = await this.getCredential();
-          loading?.show();
-          return credential;
+      const urlRepo: string = await prompt('Repository URL', '', 'url', {
+        required: true,
+        placeholder: 'Enter repositories URL'
+      });
+      if (!urlRepo) return;
+
+      const { url: uri } = await fileBrowser('folder', 'Select folder', true);
+      let dest = pathUtil.uriToPath(uri);
+      let repoDir = pathUtil.join(dest, urlRepo.match(/\/([^\/]+?)(\.git)?$/)?.[1] || '');
+      fs.stat(repoDir, undefined, (err, stat) => {
+        if (err && err instanceof ENOENT) {
+          pfs.mkdir(repoDir).then(clone).catch(this.handleError);
+        } else if (stat) {
+          if (stat.isFile()) {
+            alert('Error', `"${repoDir}" is a file`);
+          } else {
+            fs.readdir(repoDir, undefined, function (err, list) {
+              if (list.length) {
+                alert('Error', `"${repoDir}" exists and is not empty`);
+              } else {
+                clone();
+              }
+            })
+          }
         }
       });
-      this.gitStatus();
+
+      const clone = async () => {
+        loading = loader.create(`Cloning in to ${repoDir}`, `Loading...`);
+        await git.clone({
+          fs: pfs,
+          http: http,
+          url: urlRepo,
+          dir: repoDir,
+          corsProxy: CORS_PROXY,
+          onProgress: (progress) => {
+            let msg = progress.phase + ` ${progress.loaded} / ${progress.total}`;
+            loading?.setMessage(msg);
+          },
+          onMessage: (msg) => loading?.setMessage(msg),
+          onAuth: async () => {
+            loading?.hide();
+            let credential = await this.getCredential();
+            loading?.show();
+            return credential;
+          }
+        });
+        loading?.destroy();
+        window.toast('Done.', 3000);
+        this.gitStatus();
+      }
     } catch (error: any) {
       let msg = error.message;
       if (error.code === 'HttpError') {
@@ -1020,6 +1048,10 @@ class VersionControl {
   private updateSetting(key: Settings, newValue: any) {
     this.settings[key] = newValue;
     appSettings.update();
+  }
+
+  private handleError(error: any) {
+    alert('Error', error.message || error);
   }
 
   private get settings() {

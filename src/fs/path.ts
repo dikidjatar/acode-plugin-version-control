@@ -73,10 +73,17 @@ function resolvePath(...paths: string[]) {
 
 function uriToPath(uri: string): string {
   if (uri.startsWith('content://com.android.externalstorage.documents/tree/primary')) {
+    if (uri.indexOf('::') === -1) {
+      let path = decodeURIComponent(uri).split('primary:')[1];
+      if (!path.startsWith('/')) path = '/' + path;
+      return path;
+    }
+
     let path = uri.split('::primary:')[1];
     if (!path.startsWith('/')) path = '/' + path;
     return path;
   } else if (uri.startsWith('content://com.termux.documents/tree')) {
+    if (uri.indexOf('::') === -1) return '/$HOME';
     let path = uri.split('::')[1]
       .replace('/data/data/com.termux/files/home', '/$HOME');
     return path;
