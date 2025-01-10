@@ -83,7 +83,22 @@ function uriToPath(uri: string): string {
     if (!path.startsWith('/')) path = '/' + path;
     return path;
   } else if (uri.startsWith('content://com.termux.documents/tree')) {
-    if (uri.indexOf('::') === -1) return '/$HOME';
+    if (uri.indexOf('::') === -1) {
+      /**
+       * 1. Decoded URI -> content://com.termux.documents/tree//data/data/com.termux/files/home/test-repo
+       * 2. splitted by "//" ->
+       * [
+          'content:',
+          'com.termux.documents/tree',
+          'data/data/com.termux/files/home/test-repo'
+         ] (selected 2nd element on 0-based index array)
+         3. replaces "data/data/com.termux/files/home" -> "/$HOME" (i.e: "content://com.termux.documents/tree//data/data/com.termux/files/home/test-repo" -> "/$HOME/test-repo")
+       */
+      const path = decodeURIComponent(uri).split('//')[2]?.replace('data/data/com.termux/files/home', '/$HOME');
+
+      return path.length ? `${path.startsWith("/") ? path : "/" + path}` : '/$HOME';
+    };
+
     let path = uri.split('::')[1]
       .replace('/data/data/com.termux/files/home', '/$HOME');
     return path;
@@ -97,14 +112,17 @@ function pathToUri(path: string): string {
   if (path.startsWith('/$HOME')) {
     let path2 = path.replace('/$HOME', '');
     if (!path2.startsWith('/')) path2 = '/' + path2;
-    let termuxUri = 'content://com.termux.documents/tree/%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome::/data/data/com.termux/files/home';
+
+    const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.replace('/$HOME', '') || path2.substring(0, path2.lastIndexOf('/'));
+
+    let termuxUri = `content://com.termux.documents/tree/%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome${path2.length ? encodeURIComponent(storedGitRepoDir) : ''}::/data/data/com.termux/files/home`;
+
     return termuxUri + path2;
   }
-
   const segments = path.split("/");
-  const storageId = segments[1];
+  const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.replace(/\//g, "%2F") || segments[1];
   const relativePath = segments.slice(1).join("/");
-  return `content://com.android.externalstorage.documents/tree/primary:${storageId}::primary:${relativePath}`;
+  return `content://com.android.externalstorage.documents/tree/primary:${storedGitRepoDir}::primary:${relativePath}`;
 }
 
 export default {
