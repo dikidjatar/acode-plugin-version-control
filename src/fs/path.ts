@@ -1,3 +1,5 @@
+import { argv0 } from "process";
+
 function normalizePath(path: string): string {
   if (!path) return ".";
 
@@ -99,9 +101,11 @@ function uriToPath(uri: string): string {
 
       return path.length ? `${path.startsWith("/") ? path : "/" + path}` : '/$HOME';
     };
-
+    const pathSegments = uri.split('::');
+    // Used to determine if the URI's base path (The one that app has access)is the Termux home directory
+    const isTermuxHomeBasePath = pathSegments[0].includes('com.termux.documents/tree/%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome');
     let path = uri.split('::')[1]
-      .replace('/data/data/com.termux/files/home', '/$HOME');
+      .replace('/data/data/com.termux/files/home', `/$HOME${isTermuxHomeBasePath ? '_BASEDIR' : ''}`);
     return path;
   } else if (uri.startsWith('file:///storage/emulated/0/')) {
     return uri.replace('file:///storage/emulated/0/', '');
@@ -111,12 +115,12 @@ function uriToPath(uri: string): string {
 
 function pathToUri(path: string): string {
   if (path.startsWith('/$HOME')) {
-    let path2 = path.replace('/$HOME', '');
+    let path2 = path.replace(/\/\$HOME(_BASEDIR)?/g, '');
     if (!path2.startsWith('/')) path2 = '/' + path2;
 
-    const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.replace('/$HOME', '') || path2.substring(0, path2.lastIndexOf('/'));
+    const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.replace(/\/\$HOME(_BASEDIR)?/g, '') || path2.substring(0, path2.lastIndexOf('/'));
 
-    let termuxUri = `content://com.termux.documents/tree/%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome${path2.length ? encodeURIComponent(storedGitRepoDir) : ''}::/data/data/com.termux/files/home`;
+    let termuxUri = `content://com.termux.documents/tree/%2Fdata%2Fdata%2Fcom.termux%2Ffiles%2Fhome${path2.length && !path.includes("$HOME_BASEDIR") ? encodeURIComponent(storedGitRepoDir) : ''}::/data/data/com.termux/files/home`;
 
     return termuxUri + path2;
   }
