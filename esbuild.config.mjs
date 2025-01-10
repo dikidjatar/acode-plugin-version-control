@@ -1,9 +1,8 @@
 import { exec } from "child_process";
 import * as esbuild from "esbuild";
 import { sassPlugin } from 'esbuild-sass-plugin'
-
 const isServe = process.argv.includes("--serve");
-
+const servePort = process.argv.find((arg) => arg.includes("--port="))?.split("=")[1] || 3000;
 // Function to pack the ZIP file
 function packZip() {
   exec("node .vscode/pack-zip.js", (err, stdout, stderr) => {
@@ -47,7 +46,7 @@ let buildConfig = {
     await ctx.watch();
     const { host, port } = await ctx.serve({
       servedir: ".",
-      port: 3000,
+      port: parseInt(servePort),
     });
 
   } else {

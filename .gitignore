@@ -1,5 +1,8 @@
 node_modules
+# package managers Lock files
 yarn.lock
+pnpm-lock.yaml
+package-lock.json
 dist.zip
 dist/main.js
 dist/main.css

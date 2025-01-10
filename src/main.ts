@@ -206,6 +206,14 @@ class VersionControl {
       if (dir !== this.lastDir) {
         $sourceFileList.innerHTML = '';
         this.lastDir = dir;
+        // Needed for pathToUri operation for knowing exact base Path
+        // the App has access to.
+        // As Android's SAF permissions are hierarchical & scoped.
+        // i.e : `/storage/emulated/0/Android/data/com.termux/files/home/test-repo` permission to this URI would allow
+        // access to it's subdirectories, not out of scope(i.e: `/storage/emulated/0/Android/data/com.termux/files/home`)
+        
+        // Hope this gets executed before IsRepository check - UnschooledGamer.
+        localStorage.setItem("gitRepoDir", dir);
       }
 
       if (!(await this.isRepository(dir))) {
@@ -1020,6 +1028,7 @@ class VersionControl {
   private get currentFolder(): AddedFolder {
     const folders = window.addedFolder;
     if (!folders || folders.length < 1) {
+      localStorage.setItem("gitRepoDir", '')
       throw new NO_FOLDER_SELECTED();
     }
     if (folders.length > 1) {
@@ -1082,6 +1091,7 @@ class VersionControl {
     this.$mainStyle?.remove();
     this.progresIndicator.destroy();
     sidebarApps.remove('vcs-sidebar');
+    localStorage.removeItem('gitRepoDir');
   }
 }
 
