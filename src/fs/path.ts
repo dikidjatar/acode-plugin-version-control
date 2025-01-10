@@ -72,10 +72,12 @@ function resolvePath(...paths: string[]) {
 }
 
 function uriToPath(uri: string): string {
+  console.log("uriToPath", uri);
   if (uri.startsWith('content://com.android.externalstorage.documents/tree/primary')) {
     if (uri.indexOf('::') === -1) {
       let path = decodeURIComponent(uri).split('primary:')[1];
       if (!path.startsWith('/')) path = '/' + path;
+      console.log("uriToPath :: path", path);
       return path;
     }
 
@@ -120,7 +122,7 @@ function pathToUri(path: string): string {
     return termuxUri + path2;
   }
   const segments = path.split("/");
-  const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.replace(/\//g, "%2F") || segments[1];
+  const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.slice(1)?.replace(/\//g, "%2F") || segments[1];
   const relativePath = segments.slice(1).join("/");
   return `content://com.android.externalstorage.documents/tree/primary:${storedGitRepoDir}::primary:${relativePath}`;
 }
