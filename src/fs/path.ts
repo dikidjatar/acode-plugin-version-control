@@ -72,12 +72,11 @@ function resolvePath(...paths: string[]) {
 }
 
 function uriToPath(uri: string): string {
-  console.log("uriToPath", uri);
   if (uri.startsWith('content://com.android.externalstorage.documents/tree/primary')) {
     if (uri.indexOf('::') === -1) {
       let path = decodeURIComponent(uri).split('primary:')[1];
       if (!path.startsWith('/')) path = '/' + path;
-      console.log("uriToPath :: path", path);
+
       return path;
     }
 
