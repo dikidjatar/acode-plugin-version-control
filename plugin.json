@@ -9,6 +9,8 @@
     "assets/source-control.svg"
   ],
   "minVersionCode" : 290,
+  "license": "MIT",
+  "keywords": ["Git", "Version Control", "Source Control"],
   "price": 0,
   "author": {
     "name": "Diki Djatar",
