@@ -121,9 +121,11 @@ function pathToUri(path: string): string {
     return termuxUri + path2;
   }
   const segments = path.split("/");
-  const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.slice(1)?.replace(/\//g, "%2F") || segments[1];
+  // const storedGitRepoDir = localStorage.getItem('gitRepoDir')?.slice(1)?.replace(/\//g, "%2F") || segments[1];
   const relativePath = segments.slice(1).join("/");
-  return `content://com.android.externalstorage.documents/tree/primary:${storedGitRepoDir}::primary:${relativePath}`;
+
+  const result = `content://com.android.externalstorage.documents/tree/primary:${segments[1]}::primary:${relativePath}`;
+  return result;
 }
 
 export default {

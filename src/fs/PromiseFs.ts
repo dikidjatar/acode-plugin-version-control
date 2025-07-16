@@ -83,10 +83,12 @@ function convertAcodeToGitStat(acodeStat: FileSystem.AcodeStat): FileSystem.Stat
 }
 
 function encode(data: string): Uint8Array<ArrayBuffer> {
+  //@ts-ignore
   return new Uint8Array(Buffer.from(data, 'utf8'));
 }
 
 function decode(data: ArrayBuffer) {
+  //@ts-ignore
   return Buffer.from(data).toString('utf8');
 }
 
@@ -143,8 +145,10 @@ export class PromiseFs implements FileSystem.FsClientPromise {
     }
 
     if (encoding === 'utf8') {
+      //@ts-ignore
       return decode(data);
     } else {
+      //@ts-ignore
       data.toString = () => decode(data);
     }
 
@@ -219,6 +223,7 @@ export class PromiseFs implements FileSystem.FsClientPromise {
   }
 
   private async _stat(path: string): Promise<FileSystem.AcodeStat> {
+    //@ts-ignore
     const stat: FileSystem.AcodeStat = fileSystem(pathUtil.pathToUri(path)).stat();
     return stat;
   }

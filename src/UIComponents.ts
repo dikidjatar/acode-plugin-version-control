@@ -297,10 +297,10 @@ export class FileStatusRenderer {
     });
 
     const $icon = tag('span', {
-      className: helpers.getIconForFile(Url.basename(file.filepath))
+      className: helpers.getIconForFile(Url.basename(file.filepath)!)
     });
     const $status = tag('span', { className: `status ${file.symbol}`, innerText: file.symbol });
-    const $label = tag('span', { className: 'text', innerText: Url.basename(file.filepath) });
+    const $label = tag('span', { className: 'text', innerText: Url.basename(file.filepath)! });
 
     $item.append($icon, $label, $status);
     return $item;

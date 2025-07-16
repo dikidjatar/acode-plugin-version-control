@@ -25,6 +25,7 @@ import {
 } from './UIComponents';
 import tag from 'html-tag-js';
 import './styles/styles.scss';
+import { WCPage } from 'acode/editor/page';
 
 const alert = acode.require('alert');
 const sidebarApps = acode.require('sidebarApps');
@@ -32,14 +33,17 @@ const select = acode.require('select');
 const loader = acode.require('loader');
 const prompt = acode.require('prompt');
 const multiPrompt = acode.require('multiPrompt');
-const appSettings = acode.require('settings');
+const appSettings: any = acode.require('settings');
 const confirm = acode.require('confirm');
 const DialogBox = acode.require('dialogBox');
 const fileBrowser = acode.require('fileBrowser');
-const EditorFileAcode: typeof EditorFile = acode.require('editorFile')
+const EditorFile: any = acode.require('editorFile')
 
+//@ts-ignore
 window.Buffer = Buffer;
+//@ts-ignore
 window.fs = new FileSystem();
+//@ts-ignore
 window.pfs = window.fs.promises;
 
 declare var fs: FsClient;
@@ -165,6 +169,7 @@ class VersionControl {
       config: this.gitConfig
     }
 
+    //@ts-ignore
     const command: keyof typeof actionMap = await select(
       'Git Commands', GIT_COMMANDS.map(cmd => [cmd, cmd]),
       {
@@ -351,7 +356,7 @@ class VersionControl {
       filepath,
       branch: currentBranch || 'master'
     });
-    const editorFile = new EditorFileAcode(`${pathUtil.basename(filepath)} (HEAD)`, {
+    const editorFile = new EditorFile(`${pathUtil.basename(filepath)} (HEAD)`, {
       editable: false,
       text: content
     });
@@ -359,6 +364,7 @@ class VersionControl {
     const { getModeForPath } = ace.require('ace/ext/modelist');
     const { name } = getModeForPath(pathUtil.basename(filepath));
     editorFile.setMode(`ace/mode/${name}`);
+    //@ts-ignore
     editorFile.render();
   }
 
@@ -570,7 +576,7 @@ class VersionControl {
       this.setLoadingState(false);
       await this.gitStatus();
     } catch (error: any) {
-      alert(error.message);
+      alert('Error', error.message);
     } finally {
       message.value = '';
       commitBtn?.classList.remove('disabled');
@@ -581,6 +587,7 @@ class VersionControl {
   private async gitPull(opts?: { branch?: string, remote?: string }) {
     let loading: any = null;
     try {
+      //@ts-ignore
       loading = loader.create('Pull', 'Loading');
 
       let repo = { fs: pfs, dir: this.currentDir }
@@ -659,6 +666,7 @@ class VersionControl {
   private async gitPush(opts?: { branch?: string, remote?: string }) {
     let loading: any = null;
     try {
+      //@ts-ignore
       loading = loader.create('Push', 'Loading');
       const result = await git.push({
         fs: pfs,
@@ -734,6 +742,7 @@ class VersionControl {
         remote = remotes.find(remote => remote.remote === selectedRemote);
       }
 
+      //@ts-ignore
       loading = loader.create('Fetch', 'Loading...');
 
       await git.fetch({
@@ -772,7 +781,7 @@ class VersionControl {
     let loading: any = null;
 
     try {
-      const urlRepo: string = await prompt('Repository URL', '', 'url', {
+      const urlRepo: string | null = await prompt('Repository URL', '', 'url', {
         required: true,
         placeholder: 'Enter repositories URL'
       });
@@ -800,6 +809,7 @@ class VersionControl {
       });
 
       const clone = async () => {
+        //@ts-ignore
         loading = loader.create(`Cloning in to ${repoDir}`, `Loading...`);
         await git.clone({
           fs: pfs,
@@ -876,6 +886,7 @@ class VersionControl {
           return;
         }
 
+        //@ts-ignore
         loading = loader.create('Checkout', 'Loading...');
         loading?.show();
         const currentBranch = await git.currentBranch({
@@ -912,7 +923,7 @@ class VersionControl {
       ];
       const configAction = await select('Git Config', options, { hideOnSelect: true });
       if (configAction === 'setConfig') {
-        const config = await multiPrompt('Enter path & value',
+        const config: any = await multiPrompt('Enter path & value',
           [
             {
               type: 'text',
@@ -950,6 +961,7 @@ class VersionControl {
             dir: this.currentDir,
             path: path
           });
+          //@ts-ignore
           DialogBox(path, `<p>${config}</p>`);
         } else {
           const configs = await git.getConfigAll({
@@ -957,6 +969,7 @@ class VersionControl {
             dir: this.currentDir,
             path: path
           });
+          //@ts-ignore
           DialogBox(path, configs.map(config => `<p>${config}</p>`).join(''));
         }
       }
@@ -986,7 +999,8 @@ class VersionControl {
     try {
       let repo = { fs: pfs, dir: this.currentDir };
       if (action === 'add') {
-        const remote = await multiPrompt('Enter url and name',
+        //@ts-ignore
+        const remote: any = await multiPrompt('Enter url and name',
           [
             { type: 'url', id: 'url', placeholder: 'Remote url', required: true },
             { type: 'text', id: 'name', placeholder: 'Remote name', required: true }
@@ -1025,7 +1039,7 @@ class VersionControl {
     }
   }
 
-  private get currentFolder(): AddedFolder {
+  private get currentFolder() {
     const folders = window.addedFolder;
     if (!folders || folders.length < 1) {
       localStorage.setItem("gitRepoDir", '')

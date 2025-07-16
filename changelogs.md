@@ -1,7 +1,8 @@
 # ChangeLogs
 
 ## [2.0.0] (2025-07-16)
-Fixed SAF URI issues and resolved various other errors.
+- Fixed SAF URI issues and resolved various other errors.
+- Updated dependencies
 
 ## [1.0.2]
 You can now choose a folder location before cloning a repository.
