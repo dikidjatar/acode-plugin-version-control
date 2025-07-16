@@ -1,12 +1,6 @@
 # Version Control (Git) 🎉
 
-Welcome to **Acode Version Control (Git) Plugin**! 🚀
-
 This plugin is a lightweight solution for those of you who love coding in Acode and need version control right in the editor. With this plugin, you can manage Git without having to switch between apps. 😎
-
-#### Update v1.0.1: Fix SAF URI and Termux Path Issues
-#### Update v1.0.2: You can now choose a folder location before cloning a repository.
-#### 🆕 Update v1.1.0
 
 ## 🤔 How It Works
 

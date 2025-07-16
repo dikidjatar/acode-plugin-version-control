@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const jszip = require('jszip');
-// const sendFile = require('./sendFile');
 
 const iconFile = path.join(__dirname, '../icon.png');
 const pluginJSON = path.join(__dirname, '../plugin.json');
